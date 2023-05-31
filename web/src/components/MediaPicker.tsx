@@ -1,9 +1,19 @@
 'use client'
 
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 
-export function MediaPicker() {
+interface MediaPickerProps {
+  searchImage?: string | null
+}
+
+export function MediaPicker({ searchImage }: MediaPickerProps) {
   const [preview, setPreview] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (searchImage) {
+      setPreview(searchImage)
+    }
+  }, [searchImage])
 
   function onFileSelected(event: ChangeEvent<HTMLInputElement>) {
     const { files } = event.target
