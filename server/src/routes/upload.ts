@@ -22,6 +22,10 @@ export async function uploadRoutes(app: FastifyInstance) {
       return reply.status(400).send()
     }
 
+    if (!isValidFileFormat) {
+      return reply.status(400).send()
+    }
+
     console.log(upload.filename)
 
     const fileId = randomUUID()
