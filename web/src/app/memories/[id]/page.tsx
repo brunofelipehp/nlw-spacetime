@@ -1,8 +1,8 @@
-import { InfoMemory } from '@/components/InfoMemory'
+import { Memory } from '@/components/Memory'
 import { ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 
-export default function Memory() {
+export default async function UpdateMemory() {
   return (
     <div className="flex flex-1 flex-col gap-4 p-16">
       <Link
@@ -12,7 +12,8 @@ export default function Memory() {
         <ChevronLeft className="h-4 w-4" />
         Voltar à timeline
       </Link>
-      <InfoMemory />
+      {/* @ts-expect-error Async Server Component */}
+      <Memory />
     </div>
   )
 }

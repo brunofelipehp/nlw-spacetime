@@ -4,33 +4,22 @@ import Cookie from 'js-cookie'
 
 import { Camera } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
-import { FormEvent, useEffect, useState } from 'react'
+import { FormEvent } from 'react'
 import { MediaPicker } from './MediaPicker'
 
-export function InfoMemory() {
-  const [isPublic, setIsPublic] = useState<string>()
-  const [imageUrl, setImageUrl] = useState<string>()
+interface InfoMemoryProps {
+  isPublic?: boolean
+  coverUrl: string
+  content: string
+}
 
-  const [content, setContent] = useState<string>()
-
+export function InfoMemory({
+  isPublic,
+  content,
+  coverUrl: imageUrl,
+}: InfoMemoryProps) {
   const router = useRouter()
-
   const params = useParams()
-
-  const token = Cookie.get('token')
-
-  async function handleMemoryInfo() {
-    const response = await api.get(`/memories/${params.id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    const { isPublic, content, coverUrl } = response.data
-
-    setIsPublic(isPublic)
-    setContent(content)
-    setImageUrl(coverUrl)
-  }
 
   async function updatedMemory(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -40,7 +29,6 @@ export function InfoMemory() {
     const fileToUpload = formData.get('coverUrl')
 
     let coverUrl = ''
-    // console.log(fileToUpload)
 
     if (fileToUpload) {
       const uploadFormData = new FormData()
@@ -48,9 +36,13 @@ export function InfoMemory() {
 
       const uploadResponse = await api.post('/upload', uploadFormData)
 
-      coverUrl = uploadResponse.data.fileUrl
+      const regexUrl = /^.*\.(jpg|jpeg|png)$/
 
-      // console.log(imageUrl)
+      if (regexUrl.test(uploadResponse.data.fileUrl)) {
+        coverUrl = uploadResponse.data.fileUrl
+      } else {
+        coverUrl = imageUrl
+      }
     }
 
     const token = Cookie.get('token')
@@ -72,9 +64,7 @@ export function InfoMemory() {
     router.push('/')
   }
 
-  useEffect(() => {
-    handleMemoryInfo()
-  }, [])
+  console.log(isPublic)
 
   return (
     <form onSubmit={updatedMemory} className="flex flex-1 flex-col gap-2">
@@ -91,27 +81,18 @@ export function InfoMemory() {
           htmlFor="isPublic"
           className="flex items-center gap-1.5 text-gray-200 hover:text-gray-100"
         >
-          {isPublic ? (
-            <input
-              type="checkbox"
-              name="isPublic"
-              id="isPublic"
-              value="true"
-              className="h-4 w-4 rounded border-gray-700 text-purple-500"
-              checked
-            />
-          ) : (
-            <input
-              type="checkbox"
-              name="isPublic"
-              id="isPublic"
-              value="true"
-              className="h-4 w-4 rounded border-gray-700 text-purple-500"
-            />
-          )}
+          <input
+            type="checkbox"
+            name="isPublic"
+            id="isPublic"
+            value="true"
+            className="h-4 w-4 rounded border-gray-700 text-purple-500"
+            defaultChecked={!!isPublic}
+          />
           Torna mémoria pública
         </label>
       </div>
+
       <MediaPicker searchImage={imageUrl} />
 
       <textarea
